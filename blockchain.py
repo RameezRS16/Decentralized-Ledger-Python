@@ -1,5 +1,5 @@
-import hashlib
 import time
+from utils import proof_of_work, calculate_hash
 
 class Block:
     def __init__(self, index, timestamp, data, previous_hash):
@@ -7,11 +7,8 @@ class Block:
         self.timestamp = timestamp
         self.data = data
         self.previous_hash = previous_hash
-        self.hash = self.calculate_hash()
-
-    def calculate_hash(self):
-        block_string = f"{self.index}{self.timestamp}{self.data}{self.previous_hash}"
-        return hashlib.sha256(block_string.encode()).hexdigest()
+        self.nonce = 0
+        self.hash = proof_of_work(self)  # Mine the block during creation
 
 class Blockchain:
     def __init__(self):
@@ -33,7 +30,7 @@ class Blockchain:
             current_block = self.chain[i]
             previous_block = self.chain[i - 1]
 
-            if current_block.hash != current_block.calculate_hash():
+            if current_block.hash != calculate_hash(current_block):
                 return False
             if current_block.previous_hash != previous_block.hash:
                 return False
